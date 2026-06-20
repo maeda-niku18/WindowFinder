@@ -9,3 +9,6 @@ xcuserdata/
 .swiftpm/
 DerivedData/
 build/
+
+# 配布物（GitHub Releases で配布するため Git には含めない）
+dist/

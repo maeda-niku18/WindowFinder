@@ -41,6 +41,7 @@ xcodebuild -project "$APP_NAME.xcodeproj" -scheme "$SCHEME" \
   "CODE_SIGN_IDENTITY=$DEV_ID_APP" \
   DEVELOPMENT_TEAM="$TEAM_ID" \
   PROVISIONING_PROFILE_SPECIFIER="" \
+  CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
   OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime" \
   build
 
