@@ -39,10 +39,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     private func setupStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.image = NSImage(
-            systemSymbolName: "macwindow.on.rectangle",
-            accessibilityDescription: "Window Finder"
-        )
+        // ウィンドウ＋虫眼鏡のテンプレート画像（ライト/ダーク自動対応）
+        item.button?.image = AppIconArtwork.menuBarImage()
 
         let menu = NSMenu()
         menu.addItem(
