@@ -3,13 +3,25 @@
     <channel>
         <title>WindowFinder</title>
         <item>
+            <title>1.0.1</title>
+            <pubDate>Sat, 20 Jun 2026 20:31:09 +0900</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.1/WindowFinder-1.0.1.dmg" length="2251392" type="application/octet-stream" sparkle:edSignature="OUZVFH6rXxuwqzQWYaJ/fye2Od6rkuF5fRQgv5bb/UQQyQ7TQbE9KWY7w8eHY4EH5IzFeVVREpzZO2JY7a7iBA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.1/WindowFinder2-1.delta" sparkle:deltaFrom="1" length="753510" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977840" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="q5BNrQpl4bAey2rNL/Z6vt1bbZS+tNVbX29+7zMD4HeAq+LHOKx9joAjiYTHSJyjXL7zYbV9EYzlN5EX3a2fDg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>1.0.0</title>
             <pubDate>Sat, 20 Jun 2026 20:07:38 +0900</pubDate>
             <sparkle:version>1</sparkle:version>
             <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.0/WindowFinder-1.0.0.dmg" length="1651180" type="application/octet-stream" sparkle:edSignature="BMbOW81R5pn6NMOQHhd5rr2CZkl0fx2tIR76qYMYIISoV0R5OZ9ZCpPtes++9royh1pbc470QHcb2tGG0x83Bw=="/>
+            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.1/WindowFinder-1.0.0.dmg" length="1651180" type="application/octet-stream" sparkle:edSignature="BMbOW81R5pn6NMOQHhd5rr2CZkl0fx2tIR76qYMYIISoV0R5OZ9ZCpPtes++9royh1pbc470QHcb2tGG0x83Bw=="/>
         </item>
     </channel>
 </rss>
