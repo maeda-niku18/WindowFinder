@@ -2,16 +2,20 @@
 //  WindowFinderApp.swift
 //  WindowFinder
 //
-//  Created by 前田悟志 on 2026/06/20.
+//  App: エントリポイント（メニューバー常駐エージェント）
 //
 
 import SwiftUI
 
 @main
 struct WindowFinderApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        // 探索 UI も設定ウィンドウも AppDelegate 側で NSWindow/NSPanel として管理する
+        // （LSUIElement のエージェントアプリでは Settings シーンが開きにくいため）。
+        Settings {
+            EmptyView()
         }
     }
 }

@@ -1,0 +1,11 @@
+# XcodeGen が生成する成果物（project.yml がソース・オブ・トゥルース）
+*.xcodeproj
+WindowFinder/Info.plist
+
+# Xcode / SPM
+.DS_Store
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+DerivedData/
+build/
