@@ -2,22 +2,19 @@
 //  AccessibilityWindowRepository.swift
 //  WindowFinder
 //
-//  Data: WindowRepositoryProtocol の Accessibility / NSWorkspace 実装
+//  AccessibilityとNSWorkspaceを使うウィンドウリポジトリ。
 //
 
 import ApplicationServices
 import AppKit
 
-/// Accessibility API と NSWorkspace を用いてウィンドウ情報を取得・操作する。
-///
-/// AXUIElement はドメイン外の型のため UI 層には渡さず、
-/// `AppWindow.id` → `AXUIElement` のマッピングを内部キャッシュで保持する。
+/// Accessibility APIを使ってウィンドウ情報の取得と呼び出しを行う。
 final class AccessibilityWindowRepository: WindowRepositoryProtocol {
 
-    /// id → 実体のキャッシュ（fetch のたびに再構築）
+    /// AppWindow.idに対応するAXUIElementのキャッシュ。
     private var windowCache: [String: AXUIElement] = [:]
 
-    // MARK: - 起動中アプリ（機能1）
+    // MARK: - 起動中のアプリ
 
     func fetchRunningApps() -> [RunningApp] {
         regularApplications().map { app in
@@ -26,13 +23,13 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
             return RunningApp(
                 id: pid,
                 bundleIdentifier: app.bundleIdentifier,
-                name: app.localizedName ?? app.bundleIdentifier ?? "不明なアプリ",
+                name: app.localizedName ?? app.bundleIdentifier ?? L10n.string("app.unknown"),
                 windowCount: count
             )
         }
     }
 
-    // MARK: - 指定アプリのウィンドウ（機能2）
+    // MARK: - アプリ別のウィンドウ
 
     func fetchWindows(for pid: pid_t) -> [AppWindow] {
         let appName = NSRunningApplication(processIdentifier: pid)?.localizedName ?? ""
@@ -42,7 +39,7 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
         }
     }
 
-    // MARK: - 全ウィンドウ横断（検索用 機能5）
+    // MARK: - すべてのウィンドウ
 
     func fetchAllWindows() -> [AppWindow] {
         windowCache.removeAll(keepingCapacity: true)
@@ -55,30 +52,30 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
         }
     }
 
-    // MARK: - ウィンドウ呼び出し（機能3）
+    // MARK: - ウィンドウの呼び出し
 
     @discardableResult
     func activate(_ window: AppWindow) -> Bool {
         guard let element = windowCache[window.id] else { return false }
 
-        // 1) 最小化されていれば解除
+        // 最小化されている場合は、前面に出す前に復元する。
         if AXClient.boolAttribute(element, kAXMinimizedAttribute as String) {
             AXClient.setBool(element, kAXMinimizedAttribute as String, false)
         }
 
-        // 2) ウィンドウを前面化（同一アプリ内で最前面へ）
+        // 所有アプリの中で対象ウィンドウを前面に出す。
         AXClient.perform(element, kAXRaiseAction as String)
 
-        // 3) アプリ自体をアクティブ化（別 Space ならシステムが切り替える）
+        // 所有アプリをアクティブにし、必要ならmacOSにSpaceを切り替えさせる。
         let activated = NSRunningApplication(processIdentifier: window.ownerPID)?
             .activate(options: [.activateAllWindows]) ?? false
 
         return activated
     }
 
-    // MARK: - 内部ヘルパー
+    // MARK: - ヘルパー
 
-    /// Dock に出る通常アプリ（メニューバー常駐や自分自身は除外）。
+    /// 通常の前面アプリを返す。Window Finder自身は除外する。
     private func regularApplications() -> [NSRunningApplication] {
         let selfPID = ProcessInfo.processInfo.processIdentifier
         return NSWorkspace.shared.runningApplications.filter {
@@ -86,11 +83,9 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
         }
     }
 
-    /// 指定 pid のアプリが保持する「通常ウィンドウ」要素を取得する。
+    /// 指定したプロセスが持つ通常ウィンドウを返す。
     ///
-    /// 認証ポップアップやツールチップ等（subrole が AXStandardWindow 以外）は
-    /// ウィンドウ探索のノイズになるため除外する。これにより各アプリの
-    /// 「ウィンドウ」メニューの件数とも一致しやすくなる。
+    /// ポップオーバーやツールチップなどは呼び出し対象として扱わない。
     private func windowElements(forPID pid: pid_t) -> [AXUIElement] {
         let appElement = AXUIElementCreateApplication(pid)
         let all = AXClient.elementArrayAttribute(appElement, kAXWindowsAttribute as String)
@@ -99,12 +94,12 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
         }
     }
 
-    /// AXUIElement から `AppWindow` を生成し、id → 実体のキャッシュを更新する。
+    /// AppWindowを生成し、対応するAXUIElementのキャッシュを更新する。
     private func makeWindow(element: AXUIElement, pid: pid_t, appName: String, index: Int) -> AppWindow {
         let title = AXClient.stringAttribute(element, kAXTitleAttribute as String) ?? ""
         let minimized = AXClient.boolAttribute(element, kAXMinimizedAttribute as String)
 
-        // CGWindowID が取れれば安定 ID、取れなければ pid+index でフォールバック
+        // 取得できる場合はCGWindowIDを使い、取得できない場合は現在の一覧内の番号で代用する。
         let cgWindowID = AXClient.windowNumber(element)
         let id: String
         if let number = cgWindowID {

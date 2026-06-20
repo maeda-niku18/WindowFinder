@@ -2,7 +2,7 @@
 //  PermissionView.swift
 //  WindowFinder
 //
-//  Presentation: 権限の案内
+//  権限の案内画面。
 //
 
 import SwiftUI
@@ -28,9 +28,9 @@ struct PermissionView: View {
                 .multilineTextAlignment(.center)
 
             HStack(spacing: 12) {
-                Button("システム設定を開く", action: onRequest)
+                Button(L10n.string("permission.openSystemSettings"), action: onRequest)
                     .buttonStyle(.borderedProminent)
-                Button("許可したか確認", action: onRecheck)
+                Button(L10n.string("permission.recheck"), action: onRecheck)
                     .buttonStyle(.bordered)
             }
         }

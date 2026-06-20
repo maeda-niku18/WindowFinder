@@ -1,0 +1,48 @@
+"app.unknown" = "不明なアプリ";
+
+"common.allow" = "許可";
+
+"finder.empty.search" = "一致するウィンドウがありません";
+"finder.empty.windows" = "表示できるウィンドウがありません";
+"finder.screenCaptureHint" = "サムネイルを表示するには、画面収録権限を許可してください";
+
+"help.loadFailed" = "ヘルプを読み込めませんでした。";
+
+"menu.findWindows" = "ウィンドウを探す  ⌃⌥Space";
+"menu.checkForUpdates" = "アップデートを確認…";
+"menu.supportDevelopment" = "開発を支援する";
+"menu.settings" = "設定…";
+"menu.quit" = "終了";
+
+"permission.accessibility.title" = "アクセシビリティ権限が必要です";
+"permission.accessibility.message" = "他のアプリのウィンドウを一覧表示して前面に呼び出すには、アクセシビリティ権限が必要です。";
+"permission.openSystemSettings" = "システム設定を開く";
+"permission.recheck" = "許可状態を確認";
+
+"search.placeholder" = "アプリ名またはウィンドウタイトルで検索";
+
+"settings.autoScroll" = "選択中の項目まで自動でスクロールする";
+"settings.columns" = "列数: %d";
+"settings.height.high" = "高";
+"settings.height.low" = "低";
+"settings.openSourceLicenses" = "オープンソースライセンス";
+"settings.shortcutDescription" = "既定は ⌃⌥Space です。⌘⌥Space は macOS 標準のショートカットと競合するため使用していません。";
+"settings.showFinderShortcut" = "ファインダーを表示:";
+"settings.size.large" = "大";
+"settings.size.small" = "小";
+"settings.sortOrder" = "表示順";
+"settings.supportDevelopment" = "開発を支援する";
+"settings.tab.about" = "このアプリについて";
+"settings.tab.general" = "一般";
+"settings.tab.help" = "ヘルプ";
+"settings.tab.shortcuts" = "ショートカット";
+"settings.thumbnailSize" = "サムネイルの大きさ";
+"settings.version" = "バージョン %@";
+"settings.widthDescription" = "ウィンドウの横幅は、列数とサムネイルの大きさから自動的に決まります。";
+"settings.windowHeight" = "ファインダーの高さ: %d";
+"settings.windowTitle" = "Window Finder 設定";
+
+"sort.appName" = "アプリ名順";
+"sort.windowCount" = "ウィンドウ数が多い順";
+
+"window.untitled" = "無題のウィンドウ";

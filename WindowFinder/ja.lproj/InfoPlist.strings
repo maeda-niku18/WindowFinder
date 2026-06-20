@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "Window Finder";
+"NSAccessibilityUsageDescription" = "他のアプリのウィンドウを一覧表示して前面に呼び出すために、アクセシビリティ権限を使用します。";
+"NSScreenCaptureUsageDescription" = "ウィンドウのサムネイルを表示するために、画面収録権限を使用します。";

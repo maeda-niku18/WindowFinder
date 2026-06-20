@@ -2,7 +2,7 @@
 //  ActivateWindowUseCase.swift
 //  WindowFinder
 //
-//  UseCase: ウィンドウ呼び出し（機能3）
+//  ウィンドウを呼び出すユースケース。
 //
 
 import Foundation

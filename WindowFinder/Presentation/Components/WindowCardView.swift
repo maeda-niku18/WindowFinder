@@ -2,7 +2,7 @@
 //  WindowCardView.swift
 //  WindowFinder
 //
-//  Presentation: ランチャー風グリッドの 1 カード（サムネイル + アプリ名）
+//  ファインダーグリッドに表示するウィンドウカード。
 //
 
 import SwiftUI

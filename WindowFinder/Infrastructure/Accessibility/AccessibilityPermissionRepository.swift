@@ -10,7 +10,7 @@ import AppKit
 import CoreGraphics
 
 /// `PermissionRepositoryProtocol` の実装。
-/// アクセシビリティ権限（システム設定 > プライバシーとセキュリティ > アクセシビリティ）を扱う。
+/// アクセシビリティ権限を扱う。
 struct AccessibilityPermissionRepository: PermissionRepositoryProtocol {
 
     var isAccessibilityTrusted: Bool {
@@ -18,17 +18,17 @@ struct AccessibilityPermissionRepository: PermissionRepositoryProtocol {
     }
 
     func requestAccessibility() {
-        // プロンプト付きで権限要求（既に許可済みなら何もしない）
+        // 未許可の場合はシステムの権限プロンプトを表示する。
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
 
-        // 併せて設定画面を直接開く（ユーザー導線を明確化）
+        // ユーザーが迷わないよう、該当する設定画面も開く。
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
             NSWorkspace.shared.open(url)
         }
     }
 
-    // MARK: - 画面収録（サムネイル取得用）
+    // MARK: - 画面収録
 
     var isScreenCaptureTrusted: Bool {
         CGPreflightScreenCaptureAccess()

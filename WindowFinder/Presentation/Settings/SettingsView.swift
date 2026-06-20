@@ -2,7 +2,7 @@
 //  SettingsView.swift
 //  WindowFinder
 //
-//  Presentation: 設定画面（タブ構成）
+//  設定ウィンドウ。
 //
 
 import SwiftUI
@@ -12,15 +12,15 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralSettingsView()
-                .tabItem { Label("一般", systemImage: "slider.horizontal.3") }
+                .tabItem { Label(L10n.string("settings.tab.general"), systemImage: "slider.horizontal.3") }
             ShortcutSettingsView()
-                .tabItem { Label("ショートカット", systemImage: "keyboard") }
+                .tabItem { Label(L10n.string("settings.tab.shortcuts"), systemImage: "keyboard") }
             MarkdownHelpView(resource: "Help")
-                .tabItem { Label("ヘルプ", systemImage: "questionmark.circle") }
+                .tabItem { Label(L10n.string("settings.tab.help"), systemImage: "questionmark.circle") }
             AboutSettingsView()
-                .tabItem { Label("について", systemImage: "info.circle") }
+                .tabItem { Label(L10n.string("settings.tab.about"), systemImage: "info.circle") }
         }
-        .frame(width: 460, height: 420)
+        .frame(width: 560, height: 440)
     }
 }
 
@@ -30,11 +30,12 @@ private struct GeneralSettingsView: View {
     @AppStorage(SettingsKey.sortOrder) private var sortOrder: String = WindowSortOrder.windowCount.rawValue
     @AppStorage(SettingsKey.thumbnailHeight) private var thumbnailHeight: Double = SettingsDefault.thumbnailHeight
     @AppStorage(SettingsKey.gridColumns) private var columns: Int = SettingsDefault.gridColumns
+    @AppStorage(SettingsKey.windowHeight) private var windowHeight: Double = SettingsDefault.windowHeight
     @AppStorage(SettingsKey.autoScroll) private var autoScroll: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Picker("表示順", selection: $sortOrder) {
+            Picker(L10n.string("settings.sortOrder"), selection: $sortOrder) {
                 ForEach(WindowSortOrder.allCases) { order in
                     Text(order.label).tag(order.rawValue)
                 }
@@ -43,18 +44,26 @@ private struct GeneralSettingsView: View {
             .fixedSize()
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("サムネイルの大きさ")
+                Text(L10n.string("settings.thumbnailSize"))
                 Slider(value: $thumbnailHeight, in: 90...240, step: 10) {
                     EmptyView()
-                } minimumValueLabel: { Text("小") } maximumValueLabel: { Text("大") }
+                } minimumValueLabel: { Text(L10n.string("settings.size.small")) } maximumValueLabel: { Text(L10n.string("settings.size.large")) }
             }
 
-            Stepper("列数: \(columns)", value: $columns, in: 2...6)
+            Stepper(L10n.format("settings.columns", columns), value: $columns, in: 2...6)
                 .fixedSize()
 
-            Toggle("選択に合わせて自動スクロールする", isOn: $autoScroll)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(L10n.format("settings.windowHeight", Int(windowHeight)))
+                Slider(value: $windowHeight,
+                       in: FinderMetrics.minHeight...FinderMetrics.maxHeight, step: 20) {
+                    EmptyView()
+                } minimumValueLabel: { Text(L10n.string("settings.height.low")) } maximumValueLabel: { Text(L10n.string("settings.height.high")) }
+            }
 
-            Text("ウィンドウはドラッグでサイズ変更でき、その大きさは記憶されます。")
+            Toggle(L10n.string("settings.autoScroll"), isOn: $autoScroll)
+
+            Text(L10n.string("settings.widthDescription"))
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -71,10 +80,10 @@ private struct ShortcutSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Text("ファインダーを表示:")
+                Text(L10n.string("settings.showFinderShortcut"))
                 KeyboardShortcuts.Recorder(for: .toggleFinder)
             }
-            Text("既定は ⌃⌥Space です（⌘⌥Space は macOS 標準と競合するため避けています）。")
+            Text(L10n.string("settings.shortcutDescription"))
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -85,7 +94,7 @@ private struct ShortcutSettingsView: View {
     }
 }
 
-// MARK: - について / ライセンス
+// MARK: - このアプリについて
 
 private struct AboutSettingsView: View {
     private var version: String {
@@ -101,14 +110,14 @@ private struct AboutSettingsView: View {
                     Image(systemName: "macwindow.on.rectangle").font(.largeTitle).foregroundStyle(.tint)
                     VStack(alignment: .leading) {
                         Text("Window Finder").font(.title2.bold())
-                        Text("バージョン \(version)").font(.callout).foregroundStyle(.secondary)
+                        Text(L10n.format("settings.version", version)).font(.callout).foregroundStyle(.secondary)
                     }
                 }
 
                 Divider()
 
                 Link(destination: AppLinks.support) {
-                    Label("開発を支援する（Buy Me a Coffee）", systemImage: "cup.and.saucer.fill")
+                    Label(L10n.string("settings.supportDevelopment"), systemImage: "cup.and.saucer.fill")
                         .font(.title3.weight(.semibold))
                 }
                 .buttonStyle(.borderedProminent)
@@ -117,7 +126,7 @@ private struct AboutSettingsView: View {
 
                 Divider()
 
-                Text("オープンソースライセンス").font(.title3.bold())
+                Text(L10n.string("settings.openSourceLicenses")).font(.title3.bold())
                 VStack(alignment: .leading, spacing: 4) {
                     Text("KeyboardShortcuts — MIT License")
                     Text("© Sindre Sorhus")

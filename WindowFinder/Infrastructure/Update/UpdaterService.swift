@@ -2,14 +2,14 @@
 //  UpdaterService.swift
 //  WindowFinder
 //
-//  Infrastructure: 自動アップデート（Sparkle）
+//  Sparkleによる自動アップデートを管理する。
 //
 
 import Foundation
 import Sparkle
 
 /// Sparkle の更新コントローラを保持するサービス。
-/// フィード（appcast）と公開鍵は Info.plist（SUFeedURL / SUPublicEDKey）で設定する。
+/// フィードと公開鍵はInfo.plistで設定する。
 final class UpdaterService {
     private let controller: SPUStandardUpdaterController
 
@@ -22,7 +22,7 @@ final class UpdaterService {
         )
     }
 
-    /// ユーザー操作による手動チェック（「アップデートを確認…」）。
+    /// ユーザー操作による手動チェック。
     func checkForUpdates() {
         controller.checkForUpdates(nil)
     }

@@ -2,32 +2,30 @@
 //  AppWindow.swift
 //  WindowFinder
 //
-//  Domain Entity: 個々のウィンドウ
+//  アプリケーションウィンドウのドメインエンティティ。
 //
 
 import Foundation
 
-/// アプリが保持する 1 つのウィンドウを表すドメインエンティティ。
-/// 実体（AXUIElement）への参照は Data 層が `id` で解決するため、
-/// ここでは UI 層に必要な情報のみを保持する。
+/// アプリで扱うウィンドウ情報を保持する値型。
 struct AppWindow: Identifiable, Equatable, Hashable {
-    /// Data 層が AXUIElement を再解決するための安定 ID
+    /// データ層でAXUIElementを再取得するための安定ID。
     let id: String
-    /// 所有アプリのプロセス ID
+    /// 所有アプリのプロセスID。
     let ownerPID: pid_t
-    /// 所有アプリ名（検索・グルーピング用）
+    /// 所有アプリの表示名。
     let ownerName: String
-    /// ウィンドウタイトル（無題のときは空文字）
+    /// ウィンドウタイトル。無題の場合は空文字になる。
     let title: String
-    /// 最小化されているか
+    /// 最小化されているかどうか。
     let isMinimized: Bool
-    /// Space 番号（公開 API では取得困難なため現状は nil。将来対応）
+    /// 取得できた場合のSpace番号。
     let spaceNumber: Int?
-    /// CGWindowID（サムネイル取得・突合に使用。取得不可なら nil）
+    /// サムネイル取得に使うCGWindowID。
     let windowID: UInt32?
 
-    /// 表示用タイトル（無題ウィンドウのフォールバック付き）
+    /// 画面に表示するタイトル。
     var displayTitle: String {
-        title.isEmpty ? "（無題のウィンドウ）" : title
+        title.isEmpty ? L10n.string("window.untitled") : title
     }
 }

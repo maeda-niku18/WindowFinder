@@ -1,0 +1,3 @@
+"CFBundleDisplayName" = "Window Finder";
+"NSAccessibilityUsageDescription" = "Window Finder uses Accessibility permission to list windows from other apps and bring them to the front.";
+"NSScreenCaptureUsageDescription" = "Window Finder uses Screen Recording permission to show window thumbnails.";

@@ -2,7 +2,7 @@
 //  WindowThumbnailService.swift
 //  WindowFinder
 //
-//  Infrastructure: ScreenCaptureKit によるウィンドウ画像（サムネイル）取得
+//  ScreenCaptureKitでウィンドウのサムネイルを取得する。
 //
 
 import ScreenCaptureKit
@@ -16,14 +16,14 @@ protocol WindowThumbnailProviding {
     func thumbnails(forWindowIDs ids: [UInt32], maxWidth: CGFloat) async -> [UInt32: CGImage]
 }
 
-/// ScreenCaptureKit（macOS 14+）でウィンドウを一括キャプチャする実装。
+/// ScreenCaptureKitでウィンドウを一括キャプチャする実装。
 /// 画面収録権限が無い／最小化・オフスクリーンのものは結果に含まれない。
 final class WindowThumbnailService: WindowThumbnailProviding {
 
     func thumbnails(forWindowIDs ids: [UInt32], maxWidth: CGFloat = 480) async -> [UInt32: CGImage] {
         guard !ids.isEmpty else { return [:] }
 
-        // 共有可能コンテンツを 1 度だけ取得（=その時点の一貫したスナップショット）
+        // 共有可能コンテンツを一度だけ取得し、同じ時点の状態として扱う。
         guard let content = try? await SCShareableContent.excludingDesktopWindows(
             false,
             onScreenWindowsOnly: true
@@ -50,7 +50,7 @@ final class WindowThumbnailService: WindowThumbnailProviding {
     private static func capture(_ scWindow: SCWindow, maxWidth: CGFloat) async -> CGImage? {
         let filter = SCContentFilter(desktopIndependentWindow: scWindow)
 
-        // 元サイズを maxWidth に収まるよう等比縮小（負荷軽減）
+        // 処理負荷を抑えるため、元画像をmaxWidthに収まるよう等比縮小する。
         let srcWidth = max(scWindow.frame.width, 1)
         let srcHeight = max(scWindow.frame.height, 1)
         let scale = min(1, maxWidth / srcWidth)

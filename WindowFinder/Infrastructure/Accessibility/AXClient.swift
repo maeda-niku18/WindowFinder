@@ -31,7 +31,7 @@ enum AXClient {
         (copyAttribute(element, attribute) as? Bool) ?? false
     }
 
-    /// AXUIElement の配列属性（例: kAXWindowsAttribute）を取得する。
+    /// AXUIElementの配列属性を取得する。
     static func elementArrayAttribute(_ element: AXUIElement, _ attribute: String) -> [AXUIElement] {
         guard let value = copyAttribute(element, attribute) else { return [] }
         // CFArray → [AXUIElement]
@@ -51,7 +51,7 @@ enum AXClient {
         AXUIElementPerformAction(element, action as CFString) == .success
     }
 
-    /// CGWindowID を private API なしで取得する試み（失敗時は nil）。
+    /// CGWindowIDを公開APIで取得できない場合に備え、取得失敗時はnilを返す。
     /// 公開 API のみで安定 ID を作るため、取得できない場合は呼び出し側でフォールバックする。
     static func windowNumber(_ window: AXUIElement) -> CGWindowID? {
         var windowID: CGWindowID = 0
@@ -60,7 +60,7 @@ enum AXClient {
     }
 }
 
-// `_AXUIElementGetWindow` は SDK に公開宣言が無いため extern 宣言する。
-// （多くのウィンドウ管理ツールが利用している準公開シンボル）
+// `_AXUIElementGetWindow`はSDKに公開宣言がないため、ここでextern宣言する。
+// 多くのウィンドウ管理ツールで使われている準公開シンボル。
 @_silgen_name("_AXUIElementGetWindow")
 private func _AXUIElementGetWindow(_ element: AXUIElement, _ identifier: UnsafeMutablePointer<CGWindowID>) -> AXError

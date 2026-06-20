@@ -2,13 +2,13 @@
 //  AppContainer.swift
 //  WindowFinder
 //
-//  App: 依存解決（Composition Root）
+//  依存関係を組み立てる合成ルート。
 //
 
 import Foundation
 
 /// 各層の依存を組み立てる合成ルート。
-/// ここでのみ具象型を生成し、上位は抽象（プロトコル）に依存する。
+/// ここでのみ具象型を生成し、上位層はプロトコルに依存する。
 @MainActor
 final class AppContainer {
 

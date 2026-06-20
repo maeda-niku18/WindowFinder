@@ -2,7 +2,7 @@
 //  FetchRunningAppsUseCase.swift
 //  WindowFinder
 //
-//  UseCase: 起動中アプリ一覧の取得（機能1）
+//  起動中アプリ一覧を取得するユースケース。
 //
 
 import Foundation

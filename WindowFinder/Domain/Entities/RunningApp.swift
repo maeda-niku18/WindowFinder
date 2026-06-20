@@ -10,7 +10,7 @@ import Foundation
 /// 起動中のアプリケーションを表すドメインエンティティ。
 /// AppKit / Accessibility への依存を持たない純粋な値型。
 struct RunningApp: Identifiable, Equatable, Hashable {
-    /// プロセス ID（一覧内で一意）
+    /// 一覧内で一意になるプロセスID。
     let id: pid_t
     let bundleIdentifier: String?
     let name: String

@@ -2,7 +2,7 @@
 //  SearchField.swift
 //  WindowFinder
 //
-//  Presentation: 検索入力フィールド（機能5）
+//  ファインダーパネルの検索欄。
 //
 
 import SwiftUI
@@ -16,10 +16,10 @@ struct SearchField: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
 
-            TextField("アプリ名・ウィンドウタイトルで検索", text: $text)
+            TextField(L10n.string("search.placeholder"), text: $text)
                 .textFieldStyle(.plain)
                 .focused(focused)
-                .onSubmit { /* Enter は将来「先頭候補を開く」に割当 */ }
+                .onSubmit { }
 
             if !text.isEmpty {
                 Button {

@@ -2,7 +2,7 @@
 //  MarkdownHelpView.swift
 //  WindowFinder
 //
-//  Presentation: バンドルした Markdown ヘルプを簡易レンダリングする
+//  バンドルしたMarkdownヘルプを表示する。
 //
 
 import SwiftUI
@@ -23,9 +23,10 @@ struct MarkdownHelpView: View {
     }
 
     private var blocks: [String] {
-        guard let url = Bundle.main.url(forResource: resource, withExtension: "md"),
+        let localization = Bundle.main.preferredLocalizations.first
+        guard let url = Bundle.main.url(forResource: resource, withExtension: "md", subdirectory: nil, localization: localization),
               let text = try? String(contentsOf: url, encoding: .utf8) else {
-            return ["ヘルプを読み込めませんでした。"]
+            return [L10n.string("help.loadFailed")]
         }
         return text.components(separatedBy: "\n")
     }

@@ -2,7 +2,7 @@
 //  FetchWindowsUseCase.swift
 //  WindowFinder
 //
-//  UseCase: 指定アプリのウィンドウ一覧取得（機能2）
+//  指定アプリのウィンドウ一覧を取得するユースケース。
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  WindowFinder
 //
-//  App: メニューバー常駐・ショートカット・パネル制御の中枢
+//  メニューバー、ショートカット、各ウィンドウを管理する。
 //
 
 import AppKit
@@ -11,9 +11,18 @@ import SwiftUI
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
-    private enum Keys {
-        static let panelWidth = "panelWidth"
-        static let panelHeight = "panelHeight"
+    /// 設定値からパネルサイズを計算する。
+    private var computedPanelSize: NSSize {
+        let defaults = UserDefaults.standard
+        let th = defaults.double(forKey: SettingsKey.thumbnailHeight)
+        let cols = defaults.integer(forKey: SettingsKey.gridColumns)
+        let h = defaults.double(forKey: SettingsKey.windowHeight)
+        let width = FinderMetrics.panelWidth(
+            columns: cols > 0 ? cols : SettingsDefault.gridColumns,
+            thumbnailHeight: th > 0 ? th : SettingsDefault.thumbnailHeight
+        )
+        let height = h > 0 ? h : SettingsDefault.windowHeight
+        return NSSize(width: width, height: height)
     }
 
     private let container = AppContainer()
@@ -25,7 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var viewModel: FinderViewModel?
     private var keyMonitor: Any?
     private var settingsWindow: NSWindow?
-    /// 表示直後のアクティベーション揺れで即閉じしないための抑制フラグ
+    /// 表示直後のアプリ切り替え中にパネルが閉じないようにする。
     private var suppressAutoHide = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -39,34 +48,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     private func setupStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        // ウィンドウ＋虫眼鏡のテンプレート画像（ライト/ダーク自動対応）
+        // 現在の外観に追従するテンプレート画像を使う。
         item.button?.image = AppIconArtwork.menuBarImage()
 
         let menu = NSMenu()
         menu.addItem(
-            withTitle: "ウィンドウを探す  (⌃⌥Space)",
+            withTitle: L10n.string("menu.findWindows"),
             action: #selector(togglePanel),
             keyEquivalent: ""
         ).target = self
         menu.addItem(.separator())
         menu.addItem(
-            withTitle: "アップデートを確認…",
+            withTitle: L10n.string("menu.checkForUpdates"),
             action: #selector(checkForUpdates),
             keyEquivalent: ""
         ).target = self
         menu.addItem(
-            withTitle: "☕ 開発を支援する",
+            withTitle: L10n.string("menu.supportDevelopment"),
             action: #selector(openSupport),
             keyEquivalent: ""
         ).target = self
         menu.addItem(
-            withTitle: "設定…",
+            withTitle: L10n.string("menu.settings"),
             action: #selector(openSettings),
             keyEquivalent: ","
         ).target = self
         menu.addItem(.separator())
         menu.addItem(
-            withTitle: "終了",
+            withTitle: L10n.string("menu.quit"),
             action: #selector(quit),
             keyEquivalent: "q"
         ).target = self
@@ -75,7 +84,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         statusItem = item
     }
 
-    // MARK: - グローバルショートカット（機能4）
+    // MARK: - グローバルショートカット
 
     private func setupHotKey() {
         hotKeyService.onTrigger = { [weak self] in
@@ -84,10 +93,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         hotKeyService.registerDefault()
     }
 
-    // MARK: - キーボード操作（ランチャー風ナビゲーション）
+    // MARK: - キーボード操作
 
-    /// パネル表示中の矢印 / Enter / Esc を横取りして ViewModel を駆動する。
-    /// 検索フィールドが左右矢印を消費する問題を避けるため、イベント段階で処理する。
+    /// パネル表示中の矢印キー、Enter、Escapeを処理する。
     private func setupKeyMonitor() {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self,
@@ -115,8 +123,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     // MARK: - パネル制御
 
     @objc private func togglePanel() {
-        // 表示中に押したら「隠す」のではなく「最新情報へ再取得」する。
-        // 押した時点の起動中アプリ・ウィンドウ・サムネイルに更新される。（閉じるのは Esc）
+        // 表示中にショートカットを押した場合は、パネルを閉じずに一覧を更新する。
         if let panel, panel.isVisible {
             armAutoHide()
             viewModel?.refresh()
@@ -132,19 +139,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         armAutoHide()
         viewModel?.refresh()
 
-        // 前回選んだサイズを復元（大きいまま使い続けられる）
-        let defaults = UserDefaults.standard
-        var size = panel.frame.size
-        let savedW = defaults.double(forKey: Keys.panelWidth)
-        let savedH = defaults.double(forKey: Keys.panelHeight)
-        if savedW > 0, savedH > 0 {
-            size = NSSize(
-                width: max(savedW, panel.minSize.width),
-                height: max(savedH, panel.minSize.height)
-            )
-        }
+        let size = computedPanelSize
 
-        // アクティブ Space の中央付近に、復元したサイズで表示
+        // アクティブな画面の中央付近に表示する。
         if let screen = NSScreen.main {
             let frame = screen.visibleFrame
             let origin = NSPoint(
@@ -160,22 +157,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         panel.makeKeyAndOrderFront(nil)
     }
 
-    // ユーザーがリサイズしたサイズを記憶する
-    func windowDidEndLiveResize(_ notification: Notification) {
-        guard let window = notification.object as? NSWindow, window === panel else { return }
-        let defaults = UserDefaults.standard
-        defaults.set(window.frame.size.width, forKey: Keys.panelWidth)
-        defaults.set(window.frame.size.height, forKey: Keys.panelHeight)
-    }
-
-    // フォーカスが外れたらファインダーを閉じる（Spotlight 風）。
+    // 他のウィンドウにフォーカスが移ったらパネルを閉じる。
     func windowDidResignKey(_ notification: Notification) {
         guard let window = notification.object as? NSWindow, window === panel else { return }
         guard !suppressAutoHide else { return }
         panel?.orderOut(nil)
     }
 
-    /// 表示直後の一瞬だけ自動クローズを抑制する。
+    /// macOSのアプリ切り替えが落ち着くまで自動クローズを一時停止する。
     private func armAutoHide() {
         suppressAutoHide = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
@@ -199,13 +188,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     @objc private func openSettings() {
-        // パネルが開いていれば閉じる（フォーカスが移るため）
+        // 設定ウィンドウへフォーカスが移るため、先にファインダーパネルを閉じる。
         panel?.orderOut(nil)
 
         if settingsWindow == nil {
             let hosting = NSHostingController(rootView: SettingsView())
             let window = NSWindow(contentViewController: hosting)
-            window.title = "Window Finder 設定"
+            window.title = L10n.string("settings.windowTitle")
             window.styleMask = [.titled, .closable, .miniaturizable]
             window.isReleasedWhenClosed = false
             window.center()

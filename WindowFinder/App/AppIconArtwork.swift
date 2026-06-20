@@ -9,7 +9,7 @@ import AppKit
 
 enum AppIconArtwork {
 
-    /// メニューバー用のテンプレート画像（ウィンドウ＋虫眼鏡）。
+    /// ウィンドウと虫眼鏡を組み合わせたメニューバー用テンプレート画像。
     /// 単色で描き `isTemplate = true` にすることで、ライト/ダークに自動追従する。
     /// 他のメニューバーアイコンと馴染むよう、内側に余白を取って小さめに見せる。
     static func menuBarImage(pointSize: CGFloat = 18) -> NSImage {
@@ -21,10 +21,10 @@ enum AppIconArtwork {
             image.unlockFocus()
             return image
         }
-        // pointSize の論理座標へスケール（描画は px 基準で計算）
+        // ピクセル基準で計算した描画をpointSizeの論理座標へ変換する。
         ctx.scaleBy(x: pointSize / px, y: pointSize / px)
 
-        // コンテンツは中央 ~74% に収める（上下左右に余白＝小さく見える）
+        // 他のメニューバーアイコンと揃えるため、外周に余白を残す。
         let pad = px * 0.16
         let line = px * 0.066
         ctx.setStrokeColor(NSColor.black.cgColor)
@@ -32,7 +32,7 @@ enum AppIconArtwork {
         ctx.setLineJoin(.round)
         ctx.setLineCap(.round)
 
-        // ウィンドウ（左上寄りの角丸枠＋タイトルバー線）
+        // 左上寄りにウィンドウ枠とタイトルバーを描く。
         let winW = px * 0.50, winH = px * 0.42
         let winX = pad, winY = px - pad - winH
         let winRect = CGRect(x: winX, y: winY, width: winW, height: winH)
@@ -43,7 +43,7 @@ enum AppIconArtwork {
         ctx.addLine(to: CGPoint(x: winX + winW, y: barY))
         ctx.strokePath()
 
-        // 虫眼鏡（右下に重ねる。重なり部分を一度くり抜いて見やすく）
+        // 右下に虫眼鏡を重ね、交差部分はくり抜いて視認性を保つ。
         let r = px * 0.16
         let cx = px - pad - r * 1.1
         let cy = pad + r * 1.1

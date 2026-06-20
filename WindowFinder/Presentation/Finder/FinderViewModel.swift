@@ -2,7 +2,7 @@
 //  FinderViewModel.swift
 //  WindowFinder
 //
-//  Presentation (MVVM): ランチャー風サムネイルグリッドの状態と振る舞い
+//  ファインダーの状態と操作を管理するViewModel。
 //
 
 import Foundation
@@ -12,24 +12,24 @@ import Combine
 @MainActor
 final class FinderViewModel: ObservableObject {
 
-    // MARK: - 出力（View が購読する状態）
+    // MARK: - 表示状態
 
-    /// 検索クエリ（機能5）
+    /// 検索クエリ。
     @Published var query: String = ""
-    /// グリッドに並べる「ウィンドウ候補」（フラット・フィルタ済み）
+    /// グリッドに並べるウィンドウ候補。
     @Published private(set) var items: [AppWindow] = []
-    /// キーボード選択中の index（items 内）
+    /// キーボードで選択しているitems内の位置。
     @Published var selectedIndex: Int = 0
     /// windowID → サムネイル画像
     @Published private(set) var thumbnails: [UInt32: NSImage] = [:]
-    /// アクセシビリティ権限が許可されているか（必須）
+    /// アクセシビリティ権限が許可されているか。
     @Published private(set) var isPermitted: Bool = false
-    /// 画面収録権限（サムネイル表示用・任意）
+    /// 画面収録権限が許可されているか。
     @Published private(set) var isScreenCapturePermitted: Bool = false
-    /// 開くたびに検索欄へフォーカスを戻すためのトリガ（View が監視）
+    /// 検索欄へフォーカスを戻すためにViewへ通知する値。
     @Published private(set) var focusTrigger: Int = 0
 
-    /// グリッドの列数（キーボード移動の計算に使用・設定で変更可）
+    /// キーボード移動の計算に使うグリッド列数。
     var columns: Int {
         let v = UserDefaults.standard.integer(forKey: SettingsKey.gridColumns)
         return v > 0 ? v : SettingsDefault.gridColumns
@@ -67,7 +67,7 @@ final class FinderViewModel: ObservableObject {
         $query
             .removeDuplicates()
             // クエリ変更通知の最中に items を更新すると SwiftUI が再描画を取りこぼすため、
-            // 必ず次のランループ（ビュー更新の外）で再計算する。
+            // ビュー更新と衝突しないよう、次のランループで再計算する。
             .receive(on: DispatchQueue.main)
             .sink { [weak self] text in self?.recomputeItems(query: text) }
             .store(in: &cancellables)
@@ -114,7 +114,7 @@ final class FinderViewModel: ObservableObject {
     func requestAccessibilityPermission() { permission.requestAccessibility() }
     func requestScreenCapturePermission() { permission.requestScreenCapture() }
 
-    // MARK: - キーボード操作（ランチャー風選択）
+    // MARK: - キーボード操作
 
     func moveSelection(_ direction: MoveDirection) {
         guard !items.isEmpty else { return }
@@ -126,18 +126,18 @@ final class FinderViewModel: ObservableObject {
         case .up:    index -= columns
         case .down:  index += columns
         }
-        // 範囲内にクランプ（端では止まる）
+        // 端を越えないように選択位置を制限する。
         selectedIndex = min(max(index, 0), count - 1)
     }
 
-    /// 選択中ウィンドウを呼び出す（機能3）。成功時 true。
+    /// 選択中のウィンドウを呼び出す。
     @discardableResult
     func activateSelected() -> Bool {
         guard items.indices.contains(selectedIndex) else { return false }
         return activateWindow(items[selectedIndex])
     }
 
-    /// 任意ウィンドウを直接呼び出す（クリック用）。
+    /// クリックされたウィンドウを呼び出す。
     @discardableResult
     func activate(_ window: AppWindow) -> Bool {
         activateWindow(window)
@@ -160,20 +160,20 @@ final class FinderViewModel: ObservableObject {
     private func recomputeItems(query: String) {
         let results = searchWindows(query: query, apps: apps, windows: allWindows)
         items = results.flatMap { $0.windows }
-        // 検索のたびに先頭候補を選択（ランチャー風 / Enter で即呼び出し）
+        // 検索結果の先頭を選択し、Enterですぐ呼び出せるようにする。
         selectedIndex = 0
     }
 
     /// 表示中ウィンドウのサムネイルを毎回取り直す。
     ///
-    /// - 取得できたもの（＝画面上にあるウィンドウ）は最新画像で上書き。
-    /// - 取得できないもの（最小化・Dock 収納など）は **前回キャッシュした画像を維持**する。
+    /// - 画面上にあるウィンドウは最新画像で上書きする。
+    /// - 取得できないウィンドウは前回キャッシュした画像を維持する。
     ///   これにより、一度でも表示したことのあるウィンドウは最小化後もサムネイルを出せる。
     private func loadThumbnails() {
         guard isScreenCapturePermitted else { return }
         thumbnailTask?.cancel()
 
-        // 現在は存在しないウィンドウのキャッシュは破棄（メモリ肥大防止）
+        // 現在存在しないウィンドウのキャッシュは破棄する。
         let aliveIDs = Set(allWindows.compactMap { $0.windowID })
         thumbnails = thumbnails.filter { aliveIDs.contains($0.key) }
 
@@ -192,7 +192,7 @@ final class FinderViewModel: ObservableObject {
             await MainActor.run {
                 guard let self else { return }
                 // 取得できたものは最新画像で上書き。
-                // 取得できなかったもの（最小化等）は前回キャッシュを維持する。
+                // 取得できなかったものは前回キャッシュを維持する。
                 for (id, cgImage) in captured {
                     self.thumbnails[id] = NSImage(
                         cgImage: cgImage,

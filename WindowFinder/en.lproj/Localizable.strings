@@ -1,0 +1,48 @@
+"app.unknown" = "Unknown App";
+
+"common.allow" = "Allow";
+
+"finder.empty.search" = "No matching windows";
+"finder.empty.windows" = "No windows available";
+"finder.screenCaptureHint" = "Allow Screen Recording to show thumbnails";
+
+"help.loadFailed" = "Could not load Help.";
+
+"menu.findWindows" = "Find Windows  ⌃⌥Space";
+"menu.checkForUpdates" = "Check for Updates…";
+"menu.supportDevelopment" = "Support Development";
+"menu.settings" = "Settings…";
+"menu.quit" = "Quit";
+
+"permission.accessibility.title" = "Accessibility Permission Required";
+"permission.accessibility.message" = "Window Finder needs Accessibility permission to list windows from other apps and bring them to the front.";
+"permission.openSystemSettings" = "Open System Settings";
+"permission.recheck" = "Check Permission";
+
+"search.placeholder" = "Search by app name or window title";
+
+"settings.autoScroll" = "Automatically scroll to the selected item";
+"settings.columns" = "Columns: %d";
+"settings.height.high" = "Tall";
+"settings.height.low" = "Short";
+"settings.openSourceLicenses" = "Open Source Licenses";
+"settings.shortcutDescription" = "The default is ⌃⌥Space. ⌘⌥Space is not used because it conflicts with a standard macOS shortcut.";
+"settings.showFinderShortcut" = "Show Finder:";
+"settings.size.large" = "Large";
+"settings.size.small" = "Small";
+"settings.sortOrder" = "Sort Order";
+"settings.supportDevelopment" = "Support Development";
+"settings.tab.about" = "About";
+"settings.tab.general" = "General";
+"settings.tab.help" = "Help";
+"settings.tab.shortcuts" = "Shortcuts";
+"settings.thumbnailSize" = "Thumbnail Size";
+"settings.version" = "Version %@";
+"settings.widthDescription" = "The window width is calculated automatically from the number of columns and the thumbnail size.";
+"settings.windowHeight" = "Finder Height: %d";
+"settings.windowTitle" = "Window Finder Settings";
+
+"sort.appName" = "App Name";
+"sort.windowCount" = "Most Windows";
+
+"window.untitled" = "Untitled Window";

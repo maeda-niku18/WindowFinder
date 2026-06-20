@@ -2,16 +2,16 @@
 //  FinderView.swift
 //  WindowFinder
 //
-//  Presentation: ランチャー風ファインダー（サムネイルグリッド + キーボード操作）
+//  検索欄とサムネイルグリッドを持つファインダーパネル。
 //
 
 import SwiftUI
 
 struct FinderView: View {
     @ObservedObject var viewModel: FinderViewModel
-    /// ウィンドウ呼び出し後にパネルを閉じるためのコールバック
+    /// ウィンドウを呼び出した後に実行する。
     var onActivated: () -> Void = {}
-    /// Esc などで閉じるためのコールバック
+    /// ウィンドウを呼び出さずにパネルを閉じるときに実行する。
     var onDismiss: () -> Void = {}
 
     @FocusState private var searchFocused: Bool
@@ -20,8 +20,17 @@ struct FinderView: View {
     @AppStorage(SettingsKey.gridColumns) private var columns: Int = SettingsDefault.gridColumns
     @AppStorage(SettingsKey.autoScroll) private var autoScroll: Bool = true
 
+    private var cardWidth: CGFloat {
+        FinderMetrics.cardWidth(thumbnailHeight: thumbnailHeight)
+    }
+
+    private var panelWidth: CGFloat {
+        FinderMetrics.panelWidth(columns: columns, thumbnailHeight: thumbnailHeight)
+    }
+
     private var gridColumns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: 12), count: max(columns, 1))
+        // カード幅を固定し、キーボード操作とスクロール位置を安定させる。
+        Array(repeating: GridItem(.fixed(cardWidth), spacing: FinderMetrics.spacing), count: max(columns, 1))
     }
 
     var body: some View {
@@ -30,26 +39,24 @@ struct FinderView: View {
             Divider()
             content
         }
-        .frame(minWidth: 720, idealWidth: 1000, maxWidth: .infinity,
-               minHeight: 520, idealHeight: 720, maxHeight: .infinity)
+        .frame(width: panelWidth)
+        .frame(maxHeight: .infinity)
         .onAppear {
             viewModel.refresh()
             searchFocused = true
         }
-        // 開くたび（パネル再利用時）に検索欄へフォーカスを戻す
+        // 再表示したパネルでも検索欄へフォーカスを戻す。
         .onChange(of: viewModel.focusTrigger) { _, _ in
             searchFocused = true
         }
-        // 矢印 / Enter / Esc は AppDelegate のローカルイベントモニタで横取りして駆動する
-        // （単一行 TextField が左右矢印を消費してしまう問題を回避するため）
     }
 
     @ViewBuilder
     private var content: some View {
         if !viewModel.isPermitted {
             PermissionView(
-                title: "アクセシビリティ権限が必要です",
-                message: "他アプリのウィンドウを一覧表示・前面化するために、\nアクセシビリティ権限を許可してください。",
+                title: L10n.string("permission.accessibility.title"),
+                message: L10n.string("permission.accessibility.message"),
                 onRequest: { viewModel.requestAccessibilityPermission() },
                 onRecheck: { viewModel.refresh() }
             )
@@ -84,8 +91,6 @@ struct FinderView: View {
                 .padding(12)
             }
             .onChange(of: viewModel.selectedIndex) { _, newValue in
-                // 自動スクロールが有効なときだけ、かつ画面外に出た時だけ最小限スクロールする
-                // （anchor を指定しないと、可視範囲にあれば動かず、端で隠れた時だけ送られる）。
                 guard autoScroll else { return }
                 withAnimation(.easeOut(duration: 0.12)) {
                     proxy.scrollTo(newValue)
@@ -99,7 +104,7 @@ struct FinderView: View {
             Image(systemName: viewModel.isSearching ? "magnifyingglass" : "macwindow.on.rectangle")
                 .font(.system(size: 36))
                 .foregroundStyle(.secondary)
-            Text(viewModel.isSearching ? "一致するウィンドウがありません" : "表示できるウィンドウがありません")
+            Text(L10n.string(viewModel.isSearching ? "finder.empty.search" : "finder.empty.windows"))
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -111,10 +116,10 @@ struct FinderView: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: "photo.badge.exclamationmark")
-                Text("サムネイルを表示するには画面収録権限を許可してください")
+                Text(L10n.string("finder.screenCaptureHint"))
                     .font(.caption)
                 Spacer()
-                Text("許可").font(.caption.weight(.semibold))
+                Text(L10n.string("common.allow")).font(.caption.weight(.semibold))
             }
             .padding(8)
             .background(.yellow.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))

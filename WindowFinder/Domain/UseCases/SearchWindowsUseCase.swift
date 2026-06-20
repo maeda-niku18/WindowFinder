@@ -2,12 +2,12 @@
 //  SearchWindowsUseCase.swift
 //  WindowFinder
 //
-//  UseCase: アプリ名 / ウィンドウタイトル検索（機能5）
+//  アプリ名とウィンドウタイトルで検索するユースケース。
 //
 
 import Foundation
 
-/// 検索結果（アプリ単位でグルーピング済み）
+/// アプリ単位でグルーピングした検索結果。
 struct WindowSearchResult: Identifiable, Equatable {
     let app: RunningApp
     let windows: [AppWindow]
@@ -16,7 +16,7 @@ struct WindowSearchResult: Identifiable, Equatable {
 
 protocol SearchWindowsUseCase {
     /// - Parameters:
-    ///   - query: 検索文字列（空のときは全件をアプリ単位で返す）
+    ///   - query: 検索文字列。空の場合は全件をアプリ単位で返す。
     ///   - apps: 起動中アプリ一覧
     ///   - windows: 全ウィンドウ一覧
     func callAsFunction(query: String, apps: [RunningApp], windows: [AppWindow]) -> [WindowSearchResult]
@@ -28,7 +28,7 @@ struct SearchWindowsUseCaseImpl: SearchWindowsUseCase {
         let bundleByPID = Dictionary(apps.map { ($0.id, $0.bundleIdentifier) }, uniquingKeysWith: { a, _ in a })
 
         // ウィンドウ単位で判定：
-        //   - アプリ名（カード2段目に出る ownerName）
+        //   - アプリ名
         //   - ウィンドウタイトル
         //   - バンドルID
         // のいずれかに部分一致すればヒット。
