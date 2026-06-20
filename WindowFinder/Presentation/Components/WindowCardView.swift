@@ -15,6 +15,9 @@ struct WindowCardView: View {
     let onActivate: () -> Void
     let onHover: () -> Void
 
+    /// ホバー状態はカード自身で保持し、確実にハイライトさせる。
+    @State private var isHovering = false
+
     var body: some View {
         Button(action: onActivate) {
             VStack(spacing: 6) {
@@ -40,12 +43,16 @@ struct WindowCardView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .padding(8)
-            .background(selectionBackground)
+            .background(highlightBackground)
             .overlay(selectionRing)
-            .contentShape(RoundedRectangle(cornerRadius: 12))
+            // カード全体を確実にホバー/クリック対象にする。
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .onHover { if $0 { onHover() } }
+        .onHover { hovering in
+            isHovering = hovering
+            if hovering { onHover() }
+        }
     }
 
     @ViewBuilder
@@ -71,9 +78,11 @@ struct WindowCardView: View {
         }
     }
 
-    private var selectionBackground: some View {
-        RoundedRectangle(cornerRadius: 12)
-            .fill(isSelected ? Color.accentColor.opacity(0.18) : Color.clear)
+    /// 選択中・ホバー中のどちらでも背景をハイライトする。
+    private var highlightBackground: some View {
+        let active = isSelected || isHovering
+        return RoundedRectangle(cornerRadius: 12)
+            .fill(active ? Color.accentColor.opacity(isSelected ? 0.22 : 0.12) : Color.clear)
     }
 
     @ViewBuilder

@@ -2,24 +2,34 @@
 //  AccessibilityWindowRepository.swift
 //  WindowFinder
 //
-//  AccessibilityとNSWorkspaceを使うウィンドウリポジトリ。
+//  AccessibilityとCGWindowListを併用するウィンドウリポジトリ。
 //
 
 import ApplicationServices
 import AppKit
+import CoreGraphics
 
-/// Accessibility APIを使ってウィンドウ情報の取得と呼び出しを行う。
+/// ウィンドウ情報の取得と呼び出しを行う。
+///
+/// 基本は Accessibility を使う（最小化状態や正確なタイトルが取れる）。
+/// ただし Electron 系（VS Code 等）やプレビューは AX からウィンドウを取得できないため、
+/// 「AX が 1 つもウィンドウを返さないアプリ」に限り CGWindowList で補完する。
 final class AccessibilityWindowRepository: WindowRepositoryProtocol {
 
-    /// AppWindow.idに対応するAXUIElementのキャッシュ。
+    /// AppWindow.idに対応するAXUIElementのキャッシュ（AXで取得できたウィンドウのみ）。
     private var windowCache: [String: AXUIElement] = [:]
 
     // MARK: - 起動中のアプリ
 
     func fetchRunningApps() -> [RunningApp] {
-        regularApplications().map { app in
+        let cg = cgWindowsByPID()
+        return regularApplications().map { app in
             let pid = app.processIdentifier
-            let count = windowElements(forPID: pid).count
+            let count = mergedWindows(
+                forPID: pid,
+                appName: app.localizedName ?? "",
+                cgWindows: cg[pid] ?? []
+            ).count
             return RunningApp(
                 id: pid,
                 bundleIdentifier: app.bundleIdentifier,
@@ -33,22 +43,18 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
 
     func fetchWindows(for pid: pid_t) -> [AppWindow] {
         let appName = NSRunningApplication(processIdentifier: pid)?.localizedName ?? ""
-        let elements = windowElements(forPID: pid)
-        return elements.enumerated().map { index, element in
-            makeWindow(element: element, pid: pid, appName: appName, index: index)
-        }
+        return mergedWindows(forPID: pid, appName: appName, cgWindows: cgWindowsByPID()[pid] ?? [])
     }
 
     // MARK: - すべてのウィンドウ
 
     func fetchAllWindows() -> [AppWindow] {
         windowCache.removeAll(keepingCapacity: true)
+        let cg = cgWindowsByPID()
         return regularApplications().flatMap { app -> [AppWindow] in
-            let pid = app.processIdentifier
-            let appName = app.localizedName ?? ""
-            return windowElements(forPID: pid).enumerated().map { index, element in
-                makeWindow(element: element, pid: pid, appName: appName, index: index)
-            }
+            mergedWindows(forPID: app.processIdentifier,
+                          appName: app.localizedName ?? "",
+                          cgWindows: cg[app.processIdentifier] ?? [])
         }
     }
 
@@ -56,21 +62,17 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
 
     @discardableResult
     func activate(_ window: AppWindow) -> Bool {
-        guard let element = windowCache[window.id] else { return false }
-
-        // 最小化されている場合は、前面に出す前に復元する。
-        if AXClient.boolAttribute(element, kAXMinimizedAttribute as String) {
-            AXClient.setBool(element, kAXMinimizedAttribute as String, false)
+        // AX 要素があれば、最小化解除・前面化まで正確に行う。
+        if let element = windowCache[window.id] {
+            if AXClient.boolAttribute(element, kAXMinimizedAttribute as String) {
+                AXClient.setBool(element, kAXMinimizedAttribute as String, false)
+            }
+            AXClient.perform(element, kAXRaiseAction as String)
         }
-
-        // 所有アプリの中で対象ウィンドウを前面に出す。
-        AXClient.perform(element, kAXRaiseAction as String)
-
-        // 所有アプリをアクティブにし、必要ならmacOSにSpaceを切り替えさせる。
-        let activated = NSRunningApplication(processIdentifier: window.ownerPID)?
+        // AX 要素が無い（CGWindowListのみで見つかった）ウィンドウは、
+        // 個別の前面化はできないため、所有アプリをアクティブにして前面へ出す。
+        return NSRunningApplication(processIdentifier: window.ownerPID)?
             .activate(options: [.activateAllWindows]) ?? false
-
-        return activated
     }
 
     // MARK: - ヘルパー
@@ -83,10 +85,40 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
         }
     }
 
-    /// 指定したプロセスが持つ通常ウィンドウを返す。
-    ///
-    /// ポップオーバーやツールチップなどは呼び出し対象として扱わない。
-    private func windowElements(forPID pid: pid_t) -> [AXUIElement] {
+    /// AX を基本とし、AX が空のアプリのみ CGWindowList で補完したウィンドウ一覧。
+    private func mergedWindows(forPID pid: pid_t, appName: String, cgWindows: [CGWindowInfo]) -> [AppWindow] {
+        // 1) AX 由来（通常ウィンドウのみ）。
+        let elements = axWindowElements(forPID: pid)
+        let axWindows = elements.enumerated().map { index, element in
+            makeAXWindow(element: element, pid: pid, appName: appName, index: index)
+        }
+
+        if !axWindows.isEmpty {
+            return axWindows
+        }
+
+        // 2) AX が 0 のアプリのみ CGWindowList で補完。
+        //    実ウィンドウだけを残すため、十分な大きさ（細い帯や小物を除外）で絞る。
+        let fallback = cgWindows
+            .filter { $0.width >= 200 && $0.height >= 200 }
+            .map { cg -> AppWindow in
+                let title = cg.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                return AppWindow(
+                    id: "\(pid)-\(cg.id)",
+                    ownerPID: pid,
+                    ownerName: appName,
+                    // CGはタイトルを返さないことが多いので、無ければアプリ名で代用。
+                    title: title.isEmpty ? appName : title,
+                    isMinimized: false,
+                    spaceNumber: nil,
+                    windowID: cg.id
+                )
+            }
+        return fallback
+    }
+
+    /// 指定プロセスの AX 通常ウィンドウ要素（ポップオーバー等は除外）。
+    private func axWindowElements(forPID pid: pid_t) -> [AXUIElement] {
         let appElement = AXUIElementCreateApplication(pid)
         let all = AXClient.elementArrayAttribute(appElement, kAXWindowsAttribute as String)
         return all.filter { element in
@@ -94,19 +126,13 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
         }
     }
 
-    /// AppWindowを生成し、対応するAXUIElementのキャッシュを更新する。
-    private func makeWindow(element: AXUIElement, pid: pid_t, appName: String, index: Int) -> AppWindow {
+    /// AX要素から AppWindow を生成し、AXUIElementのキャッシュを更新する。
+    private func makeAXWindow(element: AXUIElement, pid: pid_t, appName: String, index: Int) -> AppWindow {
         let title = AXClient.stringAttribute(element, kAXTitleAttribute as String) ?? ""
         let minimized = AXClient.boolAttribute(element, kAXMinimizedAttribute as String)
 
-        // 取得できる場合はCGWindowIDを使い、取得できない場合は現在の一覧内の番号で代用する。
         let cgWindowID = AXClient.windowNumber(element)
-        let id: String
-        if let number = cgWindowID {
-            id = "\(pid)-\(number)"
-        } else {
-            id = "\(pid)-idx\(index)"
-        }
+        let id = cgWindowID.map { "\(pid)-\($0)" } ?? "\(pid)-idx\(index)"
         windowCache[id] = element
 
         return AppWindow(
@@ -118,5 +144,40 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
             spaceNumber: nil,
             windowID: cgWindowID
         )
+    }
+
+    // MARK: - CGWindowList
+
+    /// CGWindowListの1ウィンドウ分の情報。
+    private struct CGWindowInfo {
+        let id: UInt32
+        let name: String
+        let width: Double
+        let height: Double
+    }
+
+    /// 画面上の通常ウィンドウ（レイヤー0）を pid 別に集計する。
+    private func cgWindowsByPID() -> [pid_t: [CGWindowInfo]] {
+        let infoList = CGWindowListCopyWindowInfo([.optionAll, .excludeDesktopElements], kCGNullWindowID)
+            as? [[String: Any]] ?? []
+        var result: [pid_t: [CGWindowInfo]] = [:]
+
+        for info in infoList {
+            guard (info[kCGWindowLayer as String] as? Int) == 0 else { continue }
+            guard let pid = info[kCGWindowOwnerPID as String] as? pid_t else { continue }
+            guard let number = info[kCGWindowNumber as String] as? UInt32 else { continue }
+
+            let alpha = (info[kCGWindowAlpha as String] as? Double) ?? 1
+            guard alpha > 0.1 else { continue }
+
+            var w = 0.0, h = 0.0
+            if let bounds = info[kCGWindowBounds as String] as? [String: Any] {
+                w = bounds["Width"] as? Double ?? 0
+                h = bounds["Height"] as? Double ?? 0
+            }
+            let name = (info[kCGWindowName as String] as? String) ?? ""
+            result[pid, default: []].append(CGWindowInfo(id: number, name: name, width: w, height: h))
+        }
+        return result
     }
 }
