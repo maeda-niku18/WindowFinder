@@ -32,9 +32,23 @@ private struct GeneralSettingsView: View {
     @AppStorage(SettingsKey.gridColumns) private var columns: Int = SettingsDefault.gridColumns
     @AppStorage(SettingsKey.windowHeight) private var windowHeight: Double = SettingsDefault.windowHeight
     @AppStorage(SettingsKey.autoScroll) private var autoScroll: Bool = true
+    @AppStorage(SettingsKey.language) private var language: String = AppLanguage.system.rawValue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
+            Picker(L10n.string("settings.language"), selection: $language) {
+                ForEach(AppLanguage.allCases) { lang in
+                    Text(lang.label).tag(lang.rawValue)
+                }
+            }
+            .pickerStyle(.menu)
+            .fixedSize()
+            .onChange(of: language) { _, newValue in
+                // 選択言語を AppleLanguages に反映し、全体反映のため再起動する
+                (AppLanguage(rawValue: newValue) ?? .system).apply()
+                AppDelegate.relaunch()
+            }
+
             Picker(L10n.string("settings.sortOrder"), selection: $sortOrder) {
                 ForEach(WindowSortOrder.allCases) { order in
                     Text(order.label).tag(order.rawValue)
@@ -83,9 +97,9 @@ private struct ShortcutSettingsView: View {
                 Text(L10n.string("settings.showFinderShortcut"))
                 KeyboardShortcuts.Recorder(for: .toggleFinder)
             }
-            Text(L10n.string("settings.shortcutDescription"))
-                .font(.callout)
-                .foregroundStyle(.secondary)
+            Button(L10n.string("settings.resetShortcut")) {
+                KeyboardShortcuts.reset(.toggleFinder)
+            }
         }
         .font(.title3)
         .controlSize(.large)

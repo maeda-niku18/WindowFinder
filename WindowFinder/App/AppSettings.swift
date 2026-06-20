@@ -15,6 +15,36 @@ enum SettingsKey {
     /// 設定で管理するファインダーパネルの高さ。
     static let windowHeight = "panelHeight"
     static let autoScroll = "autoScroll"
+    /// 表示言語（system / ja / en）。
+    static let language = "appLanguage"
+}
+
+/// 表示言語の選択肢。選択値は AppleLanguages に反映し、再起動で全体に適用する。
+enum AppLanguage: String, CaseIterable, Identifiable {
+    case system
+    case ja
+    case en
+
+    var id: String { rawValue }
+
+    /// ピッカーに表示する名称（言語名は各言語の表記で固定）。
+    var label: String {
+        switch self {
+        case .system: return L10n.string("language.system")
+        case .ja: return "日本語"
+        case .en: return "English"
+        }
+    }
+
+    /// AppleLanguages へ適用する。system は上書きを解除しOS設定に従う。
+    func apply() {
+        let defaults = UserDefaults.standard
+        switch self {
+        case .system: defaults.removeObject(forKey: "AppleLanguages")
+        case .ja: defaults.set(["ja"], forKey: "AppleLanguages")
+        case .en: defaults.set(["en"], forKey: "AppleLanguages")
+        }
+    }
 }
 
 /// 外部リンク。

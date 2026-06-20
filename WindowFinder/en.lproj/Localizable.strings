@@ -8,7 +8,7 @@
 
 "help.loadFailed" = "Could not load Help.";
 
-"menu.findWindows" = "Find Windows  ⌃⌥Space";
+"menu.findWindows" = "Find Windows";
 "menu.checkForUpdates" = "Check for Updates…";
 "menu.supportDevelopment" = "Support Development";
 "menu.settings" = "Settings…";
@@ -26,13 +26,15 @@
 "settings.height.high" = "Tall";
 "settings.height.low" = "Short";
 "settings.openSourceLicenses" = "Open Source Licenses";
-"settings.shortcutDescription" = "The default is ⌃⌥Space. ⌘⌥Space is not used because it conflicts with a standard macOS shortcut.";
+"settings.resetShortcut" = "Reset to Default";
+"settings.language" = "Language";
+"language.system" = "System";
 "settings.showFinderShortcut" = "Show Finder:";
 "settings.size.large" = "Large";
 "settings.size.small" = "Small";
 "settings.sortOrder" = "Sort Order";
 "settings.supportDevelopment" = "Support Development";
-"settings.tab.about" = "About";
+"settings.tab.about" = "About Window Finder";
 "settings.tab.general" = "General";
 "settings.tab.help" = "Help";
 "settings.tab.shortcuts" = "Shortcuts";

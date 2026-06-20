@@ -8,7 +8,7 @@
 
 "help.loadFailed" = "ヘルプを読み込めませんでした。";
 
-"menu.findWindows" = "ウィンドウを探す  ⌃⌥Space";
+"menu.findWindows" = "ウィンドウを探す";
 "menu.checkForUpdates" = "アップデートを確認…";
 "menu.supportDevelopment" = "開発を支援する";
 "menu.settings" = "設定…";
@@ -26,13 +26,15 @@
 "settings.height.high" = "高";
 "settings.height.low" = "低";
 "settings.openSourceLicenses" = "オープンソースライセンス";
-"settings.shortcutDescription" = "既定は ⌃⌥Space です。⌘⌥Space は macOS 標準のショートカットと競合するため使用していません。";
+"settings.resetShortcut" = "既定に戻す";
+"settings.language" = "言語";
+"language.system" = "システムに従う";
 "settings.showFinderShortcut" = "ファインダーを表示:";
 "settings.size.large" = "大";
 "settings.size.small" = "小";
 "settings.sortOrder" = "表示順";
 "settings.supportDevelopment" = "開発を支援する";
-"settings.tab.about" = "このアプリについて";
+"settings.tab.about" = "WindowFinderについて";
 "settings.tab.general" = "一般";
 "settings.tab.help" = "ヘルプ";
 "settings.tab.shortcuts" = "ショートカット";

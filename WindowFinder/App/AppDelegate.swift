@@ -7,6 +7,7 @@
 
 import AppKit
 import SwiftUI
+import KeyboardShortcuts
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -52,11 +53,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         item.button?.image = AppIconArtwork.menuBarImage()
 
         let menu = NSMenu()
-        menu.addItem(
+        let findItem = menu.addItem(
             withTitle: L10n.string("menu.findWindows"),
             action: #selector(togglePanel),
             keyEquivalent: ""
-        ).target = self
+        )
+        findItem.target = self
+        // 現在のショートカットを右側に表示し、設定変更にも自動追従させる。
+        findItem.setShortcut(for: .toggleFinder)
         menu.addItem(.separator())
         menu.addItem(
             withTitle: L10n.string("menu.checkForUpdates"),
@@ -201,6 +205,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             settingsWindow = window
         }
 
+        // メニューバー常駐（Dockアイコン無し）のまま、ウィンドウを前面化してキーにする。
         NSApp.activate(ignoringOtherApps: true)
         settingsWindow?.makeKeyAndOrderFront(nil)
     }
@@ -214,6 +219,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     @objc private func quit() {
+        NSApp.terminate(nil)
+    }
+
+    /// アプリを再起動する（言語変更の全体反映などに使用）。
+    static func relaunch() {
+        let path = Bundle.main.bundlePath
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/sh")
+        // 自プロセス終了後に開き直す
+        process.arguments = ["-c", "sleep 0.4; open \"\(path)\""]
+        try? process.run()
         NSApp.terminate(nil)
     }
 }
