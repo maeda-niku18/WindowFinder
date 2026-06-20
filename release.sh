@@ -65,19 +65,19 @@ xcrun stapler staple "$APP_PATH"
 
 echo "▶︎ 6/7 appcast 生成（EdDSA 署名込み）"
 GEN_APPCAST="$(find "$BUILD_DIR/SourcePackages/artifacts" -name generate_appcast -type f | head -1)"
-# DMG を dist に置いた状態で generate_appcast を回すと appcast.xml が作られる
+# 小さなアプリでは差分(delta)更新は不要なため生成しない（フル DMG のみで更新）。
+# 既存の .delta が残っていると appcast に取り込まれるので掃除しておく。
+rm -f "$DIST_DIR"/*.delta
 "$GEN_APPCAST" \
+  --maximum-deltas 0 \
   --download-url-prefix "https://github.com/$GITHUB_REPO/releases/download/v$VERSION/" \
   "$DIST_DIR"
 cp "$DIST_DIR/appcast.xml" "$ROOT/appcast.xml"
 
-echo "▶︎ 7/7 GitHub Release へアップロード（DMG + 差分更新 delta）"
-# appcast が参照する全アップロード対象（DMG と delta）
-UPLOAD_FILES=("$DMG_PATH")
-while IFS= read -r d; do UPLOAD_FILES+=("$d"); done < <(find "$DIST_DIR" -name "*.delta" -type f)
-gh release create "v$VERSION" "${UPLOAD_FILES[@]}" \
+echo "▶︎ 7/7 GitHub Release へアップロード（DMG のみ）"
+gh release create "v$VERSION" "$DMG_PATH" \
   --repo "$GITHUB_REPO" --title "v$VERSION" --notes "WindowFinder v$VERSION" || \
-gh release upload "v$VERSION" "${UPLOAD_FILES[@]}" --repo "$GITHUB_REPO" --clobber
+gh release upload "v$VERSION" "$DMG_PATH" --repo "$GITHUB_REPO" --clobber
 # appcast.xml は main にコミット/プッシュ（SUFeedURL が raw main を指すため）
 git -C "$ROOT" add appcast.xml && git -C "$ROOT" commit -m "Update appcast for v$VERSION" && git -C "$ROOT" push
 
