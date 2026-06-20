@@ -3,13 +3,27 @@
     <channel>
         <title>WindowFinder</title>
         <item>
+            <title>1.0.3</title>
+            <pubDate>Sat, 20 Jun 2026 21:40:28 +0900</pubDate>
+            <sparkle:version>4</sparkle:version>
+            <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.3/WindowFinder-1.0.3.dmg" length="2503183" type="application/octet-stream" sparkle:edSignature="531/2j+uFFMcA4Q0YYEfwYiA48LPLzOV6cQFweb803TliYOrxr6ac93VCZwuT+6xTKP8qvCJfVpLhlHesYGHAQ=="/>
+            <sparkle:deltas>
+                <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.3/WindowFinder4-3.delta" sparkle:deltaFrom="3" length="37262" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977840" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="npM9RwR9fYon9+VdHlrajkP6V8VwgDpcPCTpIvyxLD9RN/PheP3EtOWnkbqy9S9LpINGqqfT9aTlka/xkcYZCQ=="/>
+                <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.3/WindowFinder4-2.delta" sparkle:deltaFrom="2" length="71562" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977840" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="XrZmAs/ggsxHA/+EQLHv7xhjPsq4wtQgQOo1HNQTcjCfVYc3iCESG2Y7e/IN6yz/naOmK4+6cPgcfs0Zte0PCQ=="/>
+                <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.3/WindowFinder4-1.delta" sparkle:deltaFrom="1" length="783566" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977840" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="N2+DS3nN9esGoInQBhlyhkl9JRNNy4a26oVSn4M4GdbZ8f/s785ltkk3slD7tLAmahmXJ2d6TJ3zSQXFNuBbCw=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>1.0.2</title>
             <pubDate>Sat, 20 Jun 2026 21:33:11 +0900</pubDate>
             <sparkle:version>3</sparkle:version>
             <sparkle:shortVersionString>1.0.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.2/WindowFinder-1.0.2.dmg" length="2502085" type="application/octet-stream" sparkle:edSignature="YsyCKNShA5RQ7QxPnR2qVNn8lHIdZpmmvsGn8oKdZCxIJ73uzD2JrPtJeibHNtC46EzvUqWZhshB3ujlgoMwAA=="/>
+            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.3/WindowFinder-1.0.2.dmg" length="2502085" type="application/octet-stream" sparkle:edSignature="YsyCKNShA5RQ7QxPnR2qVNn8lHIdZpmmvsGn8oKdZCxIJ73uzD2JrPtJeibHNtC46EzvUqWZhshB3ujlgoMwAA=="/>
             <sparkle:deltas>
                 <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.2/WindowFinder3-2.delta" sparkle:deltaFrom="2" length="64846" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977840" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="GwSe3poRdNZ8x2vRDmE9sqPZmbY5Zpc1VQhZ4mVNDbGSMCoO/WV8ztreieTVxGjz1JL+DBwEb4Td+TGs/GS4Cw=="/>
                 <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.2/WindowFinder3-1.delta" sparkle:deltaFrom="1" length="777906" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977840" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="ldlQiBtbJWoMyYbjc3eb3u+9PxtZo6D0T9wUOCq37NwsKyuRvaccLXaiBlAsJ8KVOSrXOT0+Z9IAQHKvL4xqCA=="/>
@@ -22,19 +36,10 @@
             <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.2/WindowFinder-1.0.1.dmg" length="2251392" type="application/octet-stream" sparkle:edSignature="OUZVFH6rXxuwqzQWYaJ/fye2Od6rkuF5fRQgv5bb/UQQyQ7TQbE9KWY7w8eHY4EH5IzFeVVREpzZO2JY7a7iBA=="/>
+            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.3/WindowFinder-1.0.1.dmg" length="2251392" type="application/octet-stream" sparkle:edSignature="OUZVFH6rXxuwqzQWYaJ/fye2Od6rkuF5fRQgv5bb/UQQyQ7TQbE9KWY7w8eHY4EH5IzFeVVREpzZO2JY7a7iBA=="/>
             <sparkle:deltas>
                 <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.1/WindowFinder2-1.delta" sparkle:deltaFrom="1" length="753510" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="977840" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="q5BNrQpl4bAey2rNL/Z6vt1bbZS+tNVbX29+7zMD4HeAq+LHOKx9joAjiYTHSJyjXL7zYbV9EYzlN5EX3a2fDg=="/>
             </sparkle:deltas>
-        </item>
-        <item>
-            <title>1.0.0</title>
-            <pubDate>Sat, 20 Jun 2026 20:07:38 +0900</pubDate>
-            <sparkle:version>1</sparkle:version>
-            <sparkle:shortVersionString>1.0.0</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/maeda-niku18/WindowFinder/releases/download/v1.0.2/WindowFinder-1.0.0.dmg" length="1651180" type="application/octet-stream" sparkle:edSignature="BMbOW81R5pn6NMOQHhd5rr2CZkl0fx2tIR76qYMYIISoV0R5OZ9ZCpPtes++9royh1pbc470QHcb2tGG0x83Bw=="/>
         </item>
     </channel>
 </rss>
