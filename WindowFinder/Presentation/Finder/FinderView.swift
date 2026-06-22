@@ -85,15 +85,19 @@ struct FinderView: View {
                             },
                             onHover: { viewModel.selectedIndex = index }
                         )
-                        .id(index)
+                        // 識別子はウィンドウID に統一する。
+                        // 以前は .id(index)（位置ベース）を併用していたため、中間の要素が
+                        // 消えて配列が縮んでも SwiftUI が位置でビューを使い回し、
+                        // 閉じたウィンドウのカードが残る不具合があった。
+                        .id(window.id)
                     }
                 }
                 .padding(12)
             }
             .onChange(of: viewModel.selectedIndex) { _, newValue in
-                guard autoScroll else { return }
+                guard autoScroll, viewModel.items.indices.contains(newValue) else { return }
                 withAnimation(.easeOut(duration: 0.12)) {
-                    proxy.scrollTo(newValue)
+                    proxy.scrollTo(viewModel.items[newValue].id)
                 }
             }
         }

@@ -99,8 +99,11 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
 
         // 2) AX が 0 のアプリのみ CGWindowList で補完。
         //    実ウィンドウだけを残すため、十分な大きさ（細い帯や小物を除外）で絞る。
+        //    さらに「現在画面に出ているウィンドウ」(kCGWindowIsOnscreen) に限定する。
+        //    .optionAll はオフスクリーンの内部ウィンドウまで返すため、これを入れないと
+        //    テキストエディット等の「閉じたのに残る名前なし幽霊ウィンドウ」を拾ってしまう。
         let fallback = cgWindows
-            .filter { $0.width >= 200 && $0.height >= 200 }
+            .filter { $0.isOnScreen && $0.width >= 200 && $0.height >= 200 }
             .map { cg -> AppWindow in
                 let title = cg.name.trimmingCharacters(in: .whitespacesAndNewlines)
                 return AppWindow(
@@ -154,6 +157,9 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
         let name: String
         let width: Double
         let height: Double
+        /// 現在いずれかの画面に表示されているか（kCGWindowIsOnscreen）。
+        /// オフスクリーンの内部ウィンドウ（閉じたアプリの残骸など）を除外するために使う。
+        let isOnScreen: Bool
     }
 
     /// 画面上の通常ウィンドウ（レイヤー0）を pid 別に集計する。
@@ -176,7 +182,11 @@ final class AccessibilityWindowRepository: WindowRepositoryProtocol {
                 h = bounds["Height"] as? Double ?? 0
             }
             let name = (info[kCGWindowName as String] as? String) ?? ""
-            result[pid, default: []].append(CGWindowInfo(id: number, name: name, width: w, height: h))
+            // kCGWindowIsOnscreen はオフスクリーン時にキー自体が無いため、無ければ false 扱い。
+            let isOnScreen = (info[kCGWindowIsOnscreen as String] as? Bool) ?? false
+            result[pid, default: []].append(
+                CGWindowInfo(id: number, name: name, width: w, height: h, isOnScreen: isOnScreen)
+            )
         }
         return result
     }
